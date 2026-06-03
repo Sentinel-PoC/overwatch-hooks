@@ -1,0 +1,246 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "LANGFUSE_PUBLIC_KEY": "__VAULT_LANGFUSE_PUBLIC_KEY__",
+    "LANGFUSE_SECRET_KEY": "__VAULT_LANGFUSE_SECRET_KEY__",
+    "LANGFUSE_BASEURL": "https://your-host.example.com",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4318",
+    "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Basic __VAULT_LANGFUSE_OTLP_AUTH__",
+    "CLAUDE_CODE_ENHANCED_TELEMETRY_BETA": "1",
+    "OTEL_TRACES_EXPORTER": "otlp",
+    "OTEL_LOG_USER_PROMPTS": "1",
+    "OTEL_LOG_TOOL_CONTENT": "1",
+    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "delta",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/json"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "Agent",
+      "SendMessage",
+      "TaskCreate",
+      "TaskUpdate",
+      "TaskList",
+      "TaskGet",
+      "WebFetch",
+      "WebSearch",
+      "mcp__plugin_telegram_telegram__reply",
+      "mcp__plugin_telegram_telegram__edit_message",
+      "mcp__plugin_telegram_telegram__react",
+      "mcp__plugin_telegram_telegram__download_attachment",
+      "mcp__plugin_discord_discord__reply",
+      "mcp__plugin_discord_discord__edit_message",
+      "mcp__plugin_discord_discord__react",
+      "mcp__plugin_discord_discord__fetch_messages",
+      "mcp__plugin_discord_discord__download_attachment",
+      "mcp__vault_vault_kv_get",
+      "mcp__vault_vault_kv_list",
+      "mcp__vault_vault_kv_metadata",
+      "mcp__plane__get_user",
+      "mcp__plane__get_projects",
+      "mcp__plane__create_project",
+      "mcp__plane__list_issue_types",
+      "mcp__plane__get_issue_type",
+      "mcp__plane__create_issue_type",
+      "mcp__plane__update_issue_type",
+      "mcp__plane__delete_issue_type",
+      "mcp__plane__list_states",
+      "mcp__plane__get_state",
+      "mcp__plane__create_state",
+      "mcp__plane__update_state",
+      "mcp__plane__delete_state",
+      "mcp__plane__list_issues",
+      "mcp__plane__get_issue",
+      "mcp__plane__create_issue",
+      "mcp__plane__update_issue",
+      "mcp__plane__delete_issue",
+      "mcp__plane__list_issue_comments",
+      "mcp__plane__create_issue_comment",
+      "mcp__plane__update_issue_comment",
+      "mcp__plane__delete_issue_comment",
+      "mcp__plane__list_labels",
+      "mcp__plane__create_label",
+      "mcp__plane__update_label",
+      "mcp__plane__delete_label",
+      "mcp__plane__list_members",
+      "mcp__plane__list_cycles",
+      "mcp__plane__get_cycle",
+      "mcp__plane__create_cycle",
+      "mcp__plane__update_cycle",
+      "mcp__plane__delete_cycle",
+      "mcp__plane__list_modules",
+      "mcp__plane__get_module",
+      "mcp__plane__create_module",
+      "mcp__plane__update_module",
+      "mcp__plane__delete_module",
+      "mcp__wazuh__wazuh_rules_search",
+      "mcp__wazuh__wazuh_alerts_search",
+      "mcp__wazuh__wazuh_agents_list"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "hooks": {
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/log-agent-lifecycle.sh",
+            "statusMessage": "Logging agent start...",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-agent-hook.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/log-agent-lifecycle.sh",
+            "statusMessage": "Logging agent stop...",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-agent-hook.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-trace.sh",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "python3 $HOME/.claude/hooks/langfuse-stop-hook.py",
+            "statusMessage": "Sending turn to Langfuse...",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-trace.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-live-trace.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/notify-precompact.sh",
+            "statusMessage": "Saving state before compaction...",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/langfuse-prompt-hook.sh",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/notify-session-end.sh",
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "telegram@claude-plugins-official": true,
+    "discord@claude-plugins-official": true
+  },
+  "sandbox": {
+    "enabled": false
+  },
+  "effortLevel": "high",
+  "channelsEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "tmux",
+  "experimental": {
+    "agentTeams": true
+  },
+  "mcpServers": {
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-obsidian",
+        "$HOME/Documents/sentinel-vault"
+      ]
+    },
+    "backstage": {
+      "command": "$HOME/.local/bin/backstage-mcp-wrapper"
+    },
+    "okd": {
+      "command": "$HOME/.local/bin/okd-mcp-wrapper"
+    },
+    "plane": {
+      "command": "$HOME/.local/bin/plane-mcp-wrapper"
+    },
+    "vault": {
+      "command": "$HOME/.local/bin/vault-mcp-wrapper"
+    },
+    "wazuh": {
+      "command": "/home/koiakoia/.local/share/uv/tools/mcp/bin/python3",
+      "args": [
+        "/home/koiakoia/repos/sentinel-iac/scripts/wazuh-mcp-server.py"
+      ],
+      "env": {
+        "VAULT_ADDR": "https://your-host.example.com"
+      }
+    }
+  },
+  "theme": "dark-ansi",
+  "agentPushNotifEnabled": true
+}
